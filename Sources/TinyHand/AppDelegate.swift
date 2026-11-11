@@ -6,7 +6,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var statusItem: NSStatusItem!
     private let overlay = OverlayController()
     private let settings = SettingsWindow()
-    private let updater = Updater()
     private let welcome = WelcomeWindow()
     private var permissionItem: NSMenuItem?
     private let menu = NSMenu()
@@ -47,7 +46,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             return [frame]
         }
         enableLaunchAtLoginOnFirstRun()
-        updater.start()
         setupStatusItem()
         setupSettings()
         registerHotKeys()
@@ -94,9 +92,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.addItem(sound)
         menu.addItem(.separator())
         menu.addItem(NSMenuItem(title: "Settings…", action: #selector(openSettings), keyEquivalent: ","))
-        if Updater.isAvailable {
-            menu.addItem(NSMenuItem(title: "Check for Updates…", action: #selector(checkForUpdates), keyEquivalent: ""))
-        }
         menu.addItem(.separator())
         menu.addItem(NSMenuItem(title: "Quit TinyHand", action: #selector(quit), keyEquivalent: "q"))
         menu.items.forEach { $0.target = self }
@@ -110,7 +105,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         settings.applyClearShortcut = { [weak self] s in
             self?.apply(s, isToggle: false) ?? false
         }
-        settings.updater = Updater.isAvailable ? updater : nil
         settings.onRecording = { [weak self] recording in
             if recording {
                 self?.unregisterHotKeys()
@@ -218,11 +212,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     @objc private func showWelcome() {
         overlay.exit()
         welcome.show()
-    }
-
-    @objc private func checkForUpdates() {
-        overlay.exit()
-        updater.checkForUpdates()
     }
 
     @objc private func quit() {

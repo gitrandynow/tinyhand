@@ -17,7 +17,7 @@ macOS 13 or later, Apple Silicon and Intel.
 
 ## Install
 
-Open `TinyHand.dmg`, drag TinyHand to Applications and allow **Accessibility** when asked. It needs that to turn your clicks into taps. TinyHand updates itself.
+Open `TinyHand.dmg`, drag TinyHand to Applications and allow **Accessibility** when asked. It needs that to turn your clicks into taps.
 
 ## Use
 

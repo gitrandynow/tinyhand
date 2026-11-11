@@ -28,7 +28,7 @@ echo "==> Building $APP_NAME $VERSION (universal)"
 swift build -c release --arch arm64 --arch x86_64
 rm -rf "$OUT"
 mkdir -p "$OUT"
-make_bundle .build/apple/Products/Release/$APP_NAME "$APP" "$BUILD_NUMBER" --with-updates
+make_bundle .build/apple/Products/Release/$APP_NAME "$APP" "$BUILD_NUMBER"
 lipo -info "$APP/Contents/MacOS/$APP_NAME"
 
 echo "==> Signing with $IDENTITY"
@@ -65,33 +65,6 @@ if [[ "$SKIP_NOTARIZE" == false ]]; then
     spctl --assess --type open --context context:primary-signature --verbose=2 "$DMG"
     spctl --assess --type execute --verbose=2 "$APP"
 fi
-
-echo "==> Signing the update and writing appcast.xml"
-TOOLS="$(sparkle_tools)"
-if [[ -n "${SPARKLE_PRIVATE_KEY:-}" ]]; then
-    ENCLOSURE="$(printf '%s' "$SPARKLE_PRIVATE_KEY" | "$TOOLS/sign_update" --ed-key-file - "$DMG")"
-else
-    ENCLOSURE="$("$TOOLS/sign_update" --account tinyhand "$DMG")"
-fi
-NOTES_HTML="$(printf '%s' "${RELEASE_NOTES:-TinyHand $VERSION}" | sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g' | sed -e 's/$/<br>/')"
-cat > "$OUT/appcast.xml" <<XML
-<?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
-  <channel>
-    <title>$APP_NAME</title>
-    <item>
-      <title>$APP_NAME $VERSION</title>
-      <pubDate>$(LC_ALL=C date -u "+%a, %d %b %Y %H:%M:%S +0000")</pubDate>
-      <sparkle:version>$BUILD_NUMBER</sparkle:version>
-      <sparkle:shortVersionString>$VERSION</sparkle:shortVersionString>
-      <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
-      <description><![CDATA[$NOTES_HTML]]></description>
-      <enclosure url="https://github.com/$REPO/releases/download/v$VERSION/$APP_NAME-$VERSION.dmg"
-                 type="application/octet-stream" $ENCLOSURE />
-    </item>
-  </channel>
-</rss>
-XML
 
 (cd "$OUT" && shasum -a 256 "$(basename "$DMG")" > "$(basename "$DMG").sha256")
 cp "$DMG" "$OUT/$APP_NAME.dmg"

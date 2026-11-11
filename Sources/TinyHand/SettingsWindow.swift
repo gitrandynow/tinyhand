@@ -12,9 +12,6 @@ final class SettingsWindow: NSObject, NSWindowDelegate {
     var onRecording: ((Bool) -> Void)? {
         didSet { model.onRecording = onRecording }
     }
-    var updater: Updater? {
-        didSet { model.updater = updater }
-    }
 
     private var window: NSWindow?
     private let model = SettingsModel()

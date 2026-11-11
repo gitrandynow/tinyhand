@@ -49,7 +49,6 @@ final class SettingsModel: ObservableObject {
     var applyToggleShortcut: ((Shortcut) -> Bool)?
     var applyClearShortcut: ((Shortcut) -> Bool)?
     var onRecording: ((Bool) -> Void)?
-    var updater: Updater?
     @Published var shortcutError: String?
 
     private var observer: Any?
@@ -458,12 +457,6 @@ private struct GeneralPage: View {
                 Row("Open TinyHand when you log in") {
                     Toggle("", isOn: model.binding({ Preferences.launchAtLogin }, { Preferences.launchAtLogin = $0 }))
                         .toggleStyle(.switch).labelsHidden().focusable(false)
-                }
-                if let updater = model.updater {
-                    Row("Check for updates automatically") {
-                        Toggle("", isOn: model.binding({ updater.automaticallyChecks }, { updater.automaticallyChecks = $0 }))
-                            .toggleStyle(.switch).labelsHidden().focusable(false)
-                    }
                 }
             }
         }
@@ -1132,9 +1125,6 @@ private struct AboutPage: View {
                     Text("A tiny hand for your Mac. Free and open source.").font(.system(size: 12)).foregroundColor(.secondary)
                 }
                 Spacer()
-                if let updater = model.updater {
-                    PillButton(title: "Check for Updates") { updater.checkForUpdates() }
-                }
             }
             Card(title: nil) {
                 LinkRow(title: "Website", detail: "tinyhand.app", url: "https://tinyhand.app")
